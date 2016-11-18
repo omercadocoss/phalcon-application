@@ -124,8 +124,16 @@ class Response implements ResponseInterface
     {
         $cookies = [];
 
+        /** @var \Phalcon\Http\Cookie $cookie */
         foreach ($this->cookies as $cookie) {
-            $cookieHeader = sprintf('%s=%s', $cookie->getName(), $cookie->getValue());
+            if ($cookie->isUsingEncryption()) {
+                /** @var \Phalcon\CryptInterface $crypt */
+                $crypt = $cookie->getDI()->getShared("crypt");
+                $value = $crypt->encryptBase64((string) $cookie->getValue());
+            } else {
+                $value = $cookie->getValue();
+            }
+            $cookieHeader = sprintf('%s=%s', $cookie->getName(), $value);
             if ($cookie->getPath()) {
                 $cookieHeader .= '; Path=' . $cookie->getPath();
             }
