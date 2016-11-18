@@ -30,7 +30,7 @@ namespace Phapp\Application;
 interface ResponseInterface
 {
     /**
-     * @param false|\Phalcon\Http\Response $result
+     * @param false|\Phapp\Application\Http\ResponseProxy $result
      */
     public function send($result);
 }
