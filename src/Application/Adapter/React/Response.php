@@ -63,7 +63,7 @@ class Response implements ResponseInterface
             $this->read($result);
         }
 
-        //$this->closeOpenedSession();
+        $this->closeOpenedSession();
         $this->flushHeaders();
         $this->writeCookies();
 
