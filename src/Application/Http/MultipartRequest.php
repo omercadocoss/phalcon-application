@@ -111,7 +111,6 @@ class MultipartRequest extends Request
         if (isset($_SERVER['PHP_AUTH_PW'])) unset($_SERVER['PHP_AUTH_PW']);
         if (isset($_SERVER['PHP_AUTH_DIGEST'])) unset($_SERVER['PHP_AUTH_DIGEST']);
         if (isset($_SERVER['AUTH_TYPE'])) unset($_SERVER['AUTH_TYPE']);
-        if (isset($_SERVER['REMOTE_ADDR'])) unset($_SERVER['REMOTE_ADDR']);
 
         // $_SERVER['SERVER_PORT'] = 0;
         // $_SERVER['HTTPS'] = '';
