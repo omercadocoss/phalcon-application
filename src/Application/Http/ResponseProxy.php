@@ -84,6 +84,9 @@ class ResponseProxy implements ResponseInterface
 		return $this;
 	}
 
+    /**
+     * @return CookieCollection|null
+     */
     public function getCookies()
     {
         return $this->response->getCookies();

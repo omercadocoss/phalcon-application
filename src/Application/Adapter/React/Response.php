@@ -102,7 +102,6 @@ class Response implements ResponseInterface
             $this->headers['Content-Length'] = strlen($this->content);
         }
 
-        /** @var \Phapp\Application\Http\CookieCollection $cookies */
         if ($cookies = $response->getCookies()) {
             $this->cookies = $cookies->getAll();
         }
