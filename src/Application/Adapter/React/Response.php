@@ -27,7 +27,7 @@ declare(strict_types = 1);
 
 namespace Phapp\Application\Adapter\React;
 
-use Phalcon\Http\Response as PhalconResponse;
+use Phapp\Application\Http\ResponseProxy;
 use Phapp\Application\ResponseInterface;
 use React\Http\Response as ReactResponse;
 
@@ -59,7 +59,7 @@ class Response implements ResponseInterface
     public function send($result)
     {
         $this->readNativeHeaders();
-        if ($result instanceof PhalconResponse) {
+        if ($result instanceof ResponseProxy) {
             $this->read($result);
         }
 
@@ -89,9 +89,9 @@ class Response implements ResponseInterface
         }
     }
 
-    private function read(PhalconResponse $response)
+    private function read(ResponseProxy $response)
     {
-        /** @var \Phalcon\Http\Response\Headers $appHeaders */
+        /** @var \Phalcon\Http\Response\Headers $headers */
         $headers = $response->getHeaders();
         $this->headers = array_merge($this->headers, $headers->toArray());
 
