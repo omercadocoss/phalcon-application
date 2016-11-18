@@ -52,6 +52,7 @@ class Dispatcher
             $listener = function (Event $event, MvcDispatcher $dispatcher) {
                 if ($dispatcher->getReturnedValue() instanceof Response) {
                     $responseProxy = new ResponseProxy($dispatcher->getReturnedValue());
+                    $dispatcher->setReturnedValue($responseProxy);
                     $dispatcher->getDI()->setShared('response', $responseProxy);
                 }
             };

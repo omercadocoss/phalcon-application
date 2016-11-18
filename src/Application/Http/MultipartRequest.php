@@ -120,11 +120,9 @@ class MultipartRequest extends Request
         $_SERVER['QUERY_STRING'] = http_build_query($this->message->getQuery());
         $_SERVER['DOCUMENT_ROOT'] = $_ENV['DOCUMENT_ROOT'] ?? getcwd();
         $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'] ?? '';
+
         if (isset($this->message->getHeaders()['Content-Type'])) {
             $_SERVER['CONTENT_TYPE'] = $this->message->getHeaders()['Content-Type'];
-        }
-        if (isset($this->message->getHeaders()['Remote-Address'])) {
-            $_SERVER['REMOTE_ADDR'] = $this->message->getHeaders()['Remote-Address'];
         }
 
         if (isset($this->message->getHeaders()['Authorization'])) {
