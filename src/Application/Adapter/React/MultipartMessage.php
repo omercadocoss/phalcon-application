@@ -55,12 +55,12 @@ class MultipartMessage implements MultipartMessageInterface
 
     public function getMethod() : string
     {
-        $this->request->getMethod();
+        return $this->request->getMethod();
     }
 
     public function getPath() : string
     {
-        $this->request->getPath();
+        return $this->request->getPath();
     }
 
     public function getHeaders() : array
@@ -80,7 +80,7 @@ class MultipartMessage implements MultipartMessageInterface
 
     public function getRawBody() : string
     {
-        return $this->data['body'] ?? [];
+        return $this->data['body'] ?? '';
     }
 
     public function getUploadedFiles() : array
