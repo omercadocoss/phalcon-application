@@ -27,32 +27,43 @@ declare(strict_types = 1);
 
 namespace Phapp\Application\Factory;
 
+use Phalcon\Cli\Dispatcher as CliDispatcher;
 use Phalcon\Events\Event;
 use Phalcon\Events\Manager as EventManager;
+use Phalcon\Http\Response;
 use Phalcon\Mvc\Dispatcher as MvcDispatcher;
-use Phalcon\Cli\Dispatcher as CliDispatcher;
+use Phapp\Application\Http\ResponseProxy;
 
 class Dispatcher
 {
     /**
      * @param array $config
+     * @param bool $useHttpResponseProxy
      * @return MvcDispatcher
      */
-    public static function createMvcFrom(array $config) : MvcDispatcher
+    public static function createMvcFrom(array $config, bool $useHttpResponseProxy = false) : MvcDispatcher
     {
         $dispatcher = new MvcDispatcher;
         $dispatcher->setEventsManager(new EventManager);
         $dispatcher->setControllerSuffix(null);
         $dispatcher->setDefaultNamespace($config['controllerDefaultNamespace']);
 
-        $dispatcher->getEventsManager()->attach(
-            'dispatch:afterDispatchLoop',
-            function (Event $event, MvcDispatcher $dispatcher) {
-                if ($dispatcher->getReturnedValue() instanceof \Phalcon\Http\Response) {
+        if ($useHttpResponseProxy) {
+            $listener = function (Event $event, MvcDispatcher $dispatcher) {
+                if ($dispatcher->getReturnedValue() instanceof Response) {
+                    $responseProxy = new ResponseProxy($dispatcher->getReturnedValue());
+                    $dispatcher->getDI()->setShared('response', $responseProxy);
+                }
+            };
+        } else {
+            $listener = function (Event $event, MvcDispatcher $dispatcher) {
+                if ($dispatcher->getReturnedValue() instanceof Response) {
                     $dispatcher->getDI()->setShared('response', $dispatcher->getReturnedValue());
                 }
-            }
-        );
+            };
+        }
+
+        $dispatcher->getEventsManager()->attach('dispatch:afterDispatchLoop', $listener);
 
         return $dispatcher;
     }

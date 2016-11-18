@@ -27,41 +27,29 @@ declare(strict_types = 1);
 
 namespace Phapp\Application\Factory;
 
-use Phalcon\Cli\Console;
-use Phalcon\DiInterface;
-use Phalcon\Mvc\Application as MvcApplication;
+use Phalcon\Di\FactoryDefault;
+use Phapp\Application\Http\MultipartRequest;
+use Phapp\Application\MultipartMessageInterface;
 
-class Application
+class MvcMessageDi extends FactoryDefault
 {
-    /**
-     * @param array $config
-     * @param DiInterface $defaultDi
-     * @return MvcApplication
-     */
-    public static function createMvcFrom(array $config, DiInterface $defaultDi = null) : MvcApplication
+    public function __construct()
     {
-        $di = Di::createMvcFrom($config, $defaultDi);
-        $application = new MvcApplication($di);
-        if ($di->has('applicationEventManager')) {
-            $application->setEventsManager($di->getShared('applicationEventManager'));
-        }
-        $application->useImplicitView(isset($config['view']));
+        $this->reset();
+        parent::__construct();
 
-        return $application;
-    }
+        $this->setShared("cookies", "Phapp\\Application\\Http\\CookieCollection");
+	}
 
     /**
-     * @param array $config
-     * @return Console
+     * @param MultipartMessageInterface $message
+     * @return self
      */
-    public static function createCliFrom(array $config) : Console
+    public static function createWith(MultipartMessageInterface $message) : self
     {
-        $di = Di::createCliFrom($config);
-        $application = new Console($di);
-        if ($di->has('applicationEventManager')) {
-            $application->setEventsManager($di->getShared('applicationEventManager'));
-        }
+        $di = new self;
+        $di->setShared('request', new MultipartRequest($message));
 
-        return $application;
+        return $di;
     }
 }

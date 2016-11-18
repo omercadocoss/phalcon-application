@@ -28,65 +28,70 @@ declare(strict_types = 1);
 namespace Phapp\Application\Factory;
 
 use Phalcon\Config;
+use Phalcon\DiInterface;
 use Phapp\Application\Service\InjectableInterface;
 
 class Di
 {
     /**
      * @param array $config
-     * @return \Phalcon\Di\FactoryDefault
+     * @param DiInterface $defaultDi
+     * @return DiInterface
      */
-    public static function createMvcFrom(array $config) : \Phalcon\Di\FactoryDefault
+    public static function createMvcFrom(array $config, DiInterface $defaultDi = null) : DiInterface
     {
-        $di = new \Phalcon\Di\FactoryDefault;
+        if (!$defaultDi) {
+            $defaultDi = new \Phalcon\Di\FactoryDefault;
+        }
 
-        $di->set('config', function () use ($config) {
+        $defaultDi->set('config', function () use ($config) {
             return new Config($config);
         });
 
-        $di->setShared('router', function () use ($config) {
+        $defaultDi->setShared('router', function () use ($config) {
             return Router::createFrom($config['routes'] ?? []);
         });
 
-        $di->setShared('dispatcher', function () use ($config) {
-            return Dispatcher::createMvcFrom($config['dispatcher']);
+        $useHttpResponseProxy = $defaultDi instanceof MvcMessageDi;
+        $defaultDi->setShared('dispatcher', function () use ($config, $useHttpResponseProxy) {
+            return Dispatcher::createMvcFrom($config['dispatcher'], $useHttpResponseProxy);
         });
 
         if (isset($config['view'])) {
-            $di->setShared('view', function () use ($config, $di) {
-                return View::createFrom($config['view'] ?? [], $di);
+            $defaultDi->setShared('view', function () use ($config, $defaultDi) {
+                return View::createFrom($config['view'] ?? [], $defaultDi);
             });
         }
 
         foreach ($config['services'] ?? [] as $service) {
             /** @var InjectableInterface $service */
-            $service::injectTo($di);
+            $service::injectTo($defaultDi);
         }
 
-        return $di;
+        return $defaultDi;
     }
 
     /**
      * @param array $config
-     * @return \Phalcon\Di\FactoryDefault\Cli
+     * @return DiInterface
      */
-    public static function createCliFrom(array $config) : \Phalcon\Di\FactoryDefault\Cli
+    public static function createCliFrom(array $config) : DiInterface
     {
-        $di = new \Phalcon\Di\FactoryDefault\Cli;
+        $defaultDi = new \Phalcon\Di\FactoryDefault\Cli;
 
-        $di->set('config', function () use ($config) {
+        $defaultDi->set('config', function () use ($config) {
             return new Config($config);
         });
 
-        $di->setShared('dispatcher', function () use ($config) {
+        $defaultDi->setShared('dispatcher', function () use ($config) {
             return Dispatcher::createCliFrom($config['dispatcher']);
         });
 
         foreach ($config['services'] ?? [] as $service) {
             /** @var InjectableInterface $service */
-            $service::injectTo($di);
+            $service::injectTo($defaultDi);
         }
 
-        return $di;
+        return $defaultDi;
     }
 }

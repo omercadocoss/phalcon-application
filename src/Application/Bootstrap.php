@@ -28,6 +28,7 @@ declare(strict_types = 1);
 namespace Phapp\Application;
 
 use Phapp\Application\Factory\Application;
+use Phapp\Application\Factory\MvcMessageDi;
 
 class Bootstrap
 {
@@ -39,7 +40,7 @@ class Bootstrap
 
     /**
      * @param array $config
-     * @param bool  $isConsole
+     * @param bool $isConsole
      */
     public function __construct(array $config, bool $isConsole)
     {
@@ -58,14 +59,31 @@ class Bootstrap
 
     /**
      * @param array $server
+     * @param MultipartMessageInterface|null $msg
+     * @param ResponseInterface|null $response
+     * @throws \Throwable
      */
-    public function runApplicationOn(array $server)
+    public function runApplicationOn(array $server, MultipartMessageInterface $msg = null, ResponseInterface $response = null)
     {
-        if ($this->isConsole) {
-            Application::createCliFrom($this->config)->setArgument($server['argv'])->handle();
+        if ($msg && $response) {
+            try {
+                $di = MvcMessageDi::createWith($msg);
+                $result = Application::createMvcFrom($this->config, $di)->handle($msg->getPath());
+            } catch (\Throwable $e) {
+                $result = false;
+                $exception = $e;
+            }
+            $response->send($result);
+            if (isset($exception)) {
+                throw $exception;
+            }
         } else {
-            if ($response = Application::createMvcFrom($this->config)->handle()) {
-                $response->send();
+            if ($this->isConsole) {
+                Application::createCliFrom($this->config)->setArgument($server['argv'])->handle();
+            } else {
+                if ($response = Application::createMvcFrom($this->config)->handle()) {
+                    $response->send();
+                }
             }
         }
     }

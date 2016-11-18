@@ -25,43 +25,12 @@
 
 declare(strict_types = 1);
 
-namespace Phapp\Application\Factory;
+namespace Phapp\Application;
 
-use Phalcon\Cli\Console;
-use Phalcon\DiInterface;
-use Phalcon\Mvc\Application as MvcApplication;
-
-class Application
+interface ResponseInterface
 {
     /**
-     * @param array $config
-     * @param DiInterface $defaultDi
-     * @return MvcApplication
+     * @param false|\Phalcon\Http\Response $result
      */
-    public static function createMvcFrom(array $config, DiInterface $defaultDi = null) : MvcApplication
-    {
-        $di = Di::createMvcFrom($config, $defaultDi);
-        $application = new MvcApplication($di);
-        if ($di->has('applicationEventManager')) {
-            $application->setEventsManager($di->getShared('applicationEventManager'));
-        }
-        $application->useImplicitView(isset($config['view']));
-
-        return $application;
-    }
-
-    /**
-     * @param array $config
-     * @return Console
-     */
-    public static function createCliFrom(array $config) : Console
-    {
-        $di = Di::createCliFrom($config);
-        $application = new Console($di);
-        if ($di->has('applicationEventManager')) {
-            $application->setEventsManager($di->getShared('applicationEventManager'));
-        }
-
-        return $application;
-    }
+    public function send($result);
 }

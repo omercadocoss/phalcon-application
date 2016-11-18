@@ -28,7 +28,11 @@
     "ext-phalcon": "^3.0"
   },
   "require-dev": {
-    "codeception/codeception": "^2.2"
+    "codeception/codeception": "^2.2",
+    "react/http": "dev-streaming-multipart"
+  },
+  "suggest": {
+    "react/http": "To support very fast nuclear reactor as a webserver"
   },
   "autoload": {
     "psr-4": {

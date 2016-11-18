@@ -25,43 +25,47 @@
 
 declare(strict_types = 1);
 
-namespace Phapp\Application\Factory;
+namespace Phapp\Application;
 
-use Phalcon\Cli\Console;
-use Phalcon\DiInterface;
-use Phalcon\Mvc\Application as MvcApplication;
-
-class Application
+interface MultipartMessageInterface
 {
     /**
-     * @param array $config
-     * @param DiInterface $defaultDi
-     * @return MvcApplication
+     * @return array
      */
-    public static function createMvcFrom(array $config, DiInterface $defaultDi = null) : MvcApplication
-    {
-        $di = Di::createMvcFrom($config, $defaultDi);
-        $application = new MvcApplication($di);
-        if ($di->has('applicationEventManager')) {
-            $application->setEventsManager($di->getShared('applicationEventManager'));
-        }
-        $application->useImplicitView(isset($config['view']));
-
-        return $application;
-    }
+    public function getHeaders() : array;
 
     /**
-     * @param array $config
-     * @return Console
+     * @return string
      */
-    public static function createCliFrom(array $config) : Console
-    {
-        $di = Di::createCliFrom($config);
-        $application = new Console($di);
-        if ($di->has('applicationEventManager')) {
-            $application->setEventsManager($di->getShared('applicationEventManager'));
-        }
+    public function getMethod() : string;
 
-        return $application;
-    }
+    /**
+     * @return string
+     */
+    public function getPath() : string;
+
+    /**
+     * @return array
+     */
+    public function getQuery() : array;
+
+    /**
+     * @return array
+     */
+    public function getPost() : array;
+
+    /**
+     * @return string
+     */
+    public function getRawBody() : string;
+
+    /**
+     * @return array
+     */
+    public function getUploadedFiles() : array;
+
+    /**
+     * @return string
+     */
+    public function getRequestOrder() : string;
 }
