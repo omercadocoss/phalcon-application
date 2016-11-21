@@ -123,26 +123,40 @@ class MultipartRequest extends Request
     {
         $_GET = $this->message->getQuery();
         $_POST = $this->message->getPost();
-        $this->populateCookieValues();
+
+        $sessionIsSetByCookie = $this->populateCookieValues();
+        if (!$sessionIsSetByCookie && session_id()) {
+            $this->startNewSession();
+        }
 
         switch ($this->message->getRequestOrder()) {
-            case 'GPC': $_REQUEST = array_replace_recursive($_GET, $_POST, $_COOKIE); break;
-            case 'GCP': $_REQUEST = array_replace_recursive($_GET, $_COOKIE, $_POST); break;
-            case 'PGC': $_REQUEST = array_replace_recursive($_POST, $_GET, $_COOKIE); break;
-            case 'PCG': $_REQUEST = array_replace_recursive($_POST, $_COOKIE, $_GET); break;
-            case 'CPG': $_REQUEST = array_replace_recursive($_COOKIE, $_POST, $_GET); break;
-            case 'CGP': $_REQUEST = array_replace_recursive($_COOKIE, $_GET, $_POST); break;
-            default   : $_REQUEST = array_replace_recursive($_GET, $_POST, $_COOKIE);
+            case 'GPC':
+                $_REQUEST = array_replace_recursive($_GET, $_POST, $_COOKIE);
+                break;
+            case 'GCP':
+                $_REQUEST = array_replace_recursive($_GET, $_COOKIE, $_POST);
+                break;
+            case 'PGC':
+                $_REQUEST = array_replace_recursive($_POST, $_GET, $_COOKIE);
+                break;
+            case 'PCG':
+                $_REQUEST = array_replace_recursive($_POST, $_COOKIE, $_GET);
+                break;
+            case 'CPG':
+                $_REQUEST = array_replace_recursive($_COOKIE, $_POST, $_GET);
+                break;
+            case 'CGP':
+                $_REQUEST = array_replace_recursive($_COOKIE, $_GET, $_POST);
+                break;
+            default   :
+                $_REQUEST = array_replace_recursive($_GET, $_POST, $_COOKIE);
         }
     }
 
-    /**
-     * @throws \RuntimeException
-     */
     private function populateCookieValues()
     {
         $_COOKIE = [];
-        $sessionIsSetByCookie = false;
+        $sessionIsSet = false;
 
         if (isset($this->message->getHeaders()['Cookie'])) {
             $cookies = explode(';', $this->message->getHeaders()['Cookie']);
@@ -151,24 +165,23 @@ class MultipartRequest extends Request
                 $_COOKIE[$keyValue[0]] = $keyValue[1];
                 if ($keyValue[0] === session_name()) {
                     session_id($keyValue[1]);
-                    $sessionIsSetByCookie = true;
+                    $sessionIsSet = true;
                 }
             }
         }
 
-        if (session_id() && !$sessionIsSetByCookie) {
-            if (ini_get('session.use_strict_mode')) {
-                throw new \RuntimeException('Enabled session.use_strict_mode is not allowed');
-            }
-            session_id($this->generateSessionId());
-        }
+        return $sessionIsSet;
     }
 
     /**
-     * @return string
+     * @throws \RuntimeException
      */
-    private function generateSessionId()
+    private function startNewSession()
     {
+        if (ini_get('session.use_strict_mode')) {
+            throw new \RuntimeException('Enabled session.use_strict_mode is not allowed in reactive environment');
+        }
+
         $entropy = uniqid(mt_rand(), true) . microtime(true);
 
         if (function_exists('openssl_random_pseudo_bytes')) {
@@ -179,12 +192,12 @@ class MultipartRequest extends Request
             $entropy .= mcrypt_create_iv(32, MCRYPT_DEV_URANDOM);
         }
 
-        return hash('whirlpool', $entropy);
+        session_id(hash('whirlpool', $entropy));
     }
 
     public function getRawBody() : string
-	{
-		return $this->message->getRawBody();
+    {
+        return $this->message->getRawBody();
     }
 
     public function hasFiles($onlySuccessful = false) : int
