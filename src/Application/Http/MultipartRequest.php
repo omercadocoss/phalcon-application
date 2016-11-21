@@ -44,6 +44,7 @@ class MultipartRequest extends Request
         $this->message = $message;
 
         $this->populateRequestTime();
+        $this->populateCookies();
         $this->populateHeaders();
         $this->populateServerEnvironment();
         $this->populateQuery();
@@ -61,20 +62,41 @@ class MultipartRequest extends Request
     private function populateCookies()
     {
         $_COOKIE = [];
-        // @todo validate cookies
+        $sessionSetByCookie = false;
+
         if (isset($this->message->getHeaders()['Cookie'])) {
             $cookies = explode(';', $this->message->getHeaders()['Cookie']);
             foreach ($cookies as $cookie) {
                 $keyValue = explode('=', trim($cookie));
                 $_COOKIE[$keyValue[0]] = $keyValue[1];
-                /*
                 if ($keyValue[0] === session_name()) {
                     session_id($keyValue[1]);
-                    session_regenerate_id(true);
+                    $sessionSetByCookie = true;
                 }
-                */
             }
         }
+
+        if (session_id() && !$sessionSetByCookie) {
+            session_id($this->generateSessionId());
+        }
+    }
+
+    /**
+     * @return string
+     */
+    private function generateSessionId()
+    {
+        $entropy = uniqid(mt_rand(), true) . microtime(true);
+
+        if (function_exists('openssl_random_pseudo_bytes')) {
+            $entropy .= openssl_random_pseudo_bytes(32, $strong);
+        }
+
+        if (function_exists('mcrypt_create_iv')) {
+            $entropy .= mcrypt_create_iv(32, MCRYPT_DEV_URANDOM);
+        }
+
+        return hash('whirlpool', $entropy);
     }
 
     private function populateHeaders()
