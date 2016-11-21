@@ -44,11 +44,8 @@ class MultipartRequest extends Request
         $this->message = $message;
 
         $this->populateRequestTime();
-        $this->populateCookies();
         $this->populateHeaders();
         $this->populateServerEnvironment();
-        $this->populateQuery();
-        $this->populatePost();
         $this->populateRequest();
     }
 
@@ -57,34 +54,6 @@ class MultipartRequest extends Request
         $start = microtime(true);
         $_SERVER['REQUEST_TIME'] = (int) $start;
         $_SERVER['REQUEST_TIME_FLOAT'] = $start;
-    }
-
-    /**
-     * @throws \RuntimeException
-     */
-    private function populateCookies()
-    {
-        $_COOKIE = [];
-        $sessionIsSetByCookie = false;
-
-        if (isset($this->message->getHeaders()['Cookie'])) {
-            $cookies = explode(';', $this->message->getHeaders()['Cookie']);
-            foreach ($cookies as $cookie) {
-                $keyValue = explode('=', trim($cookie));
-                $_COOKIE[$keyValue[0]] = $keyValue[1];
-                if ($keyValue[0] === session_name()) {
-                    session_id($keyValue[1]);
-                    $sessionIsSetByCookie = true;
-                }
-            }
-        }
-
-        if (session_id() && !$sessionIsSetByCookie) {
-            if (ini_get('session.use_strict_mode')) {
-                throw new \RuntimeException('Enabled session.use_strict_mode is not allowed');
-            }
-            session_id($this->generateSessionId());
-        }
     }
 
     /**
@@ -167,18 +136,12 @@ class MultipartRequest extends Request
         }
     }
 
-    private function populateQuery()
-    {
-        $_GET = $this->message->getQuery();
-    }
-
-    private function populatePost()
-    {
-        $_POST = $this->message->getPost();
-    }
-
     private function populateRequest()
     {
+        $_GET = $this->message->getQuery();
+        $_POST = $this->message->getPost();
+        $this->populateCookies();
+
         switch ($this->message->getRequestOrder()) {
             case 'GPC': $_REQUEST = array_replace_recursive($_GET, $_POST, $_COOKIE); break;
             case 'GCP': $_REQUEST = array_replace_recursive($_GET, $_COOKIE, $_POST); break;
@@ -187,6 +150,34 @@ class MultipartRequest extends Request
             case 'CPG': $_REQUEST = array_replace_recursive($_COOKIE, $_POST, $_GET); break;
             case 'CGP': $_REQUEST = array_replace_recursive($_COOKIE, $_GET, $_POST); break;
             default   : $_REQUEST = array_replace_recursive($_GET, $_POST, $_COOKIE);
+        }
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    private function populateCookies()
+    {
+        $_COOKIE = [];
+        $sessionIsSetByCookie = false;
+
+        if (isset($this->message->getHeaders()['Cookie'])) {
+            $cookies = explode(';', $this->message->getHeaders()['Cookie']);
+            foreach ($cookies as $cookie) {
+                $keyValue = explode('=', trim($cookie));
+                $_COOKIE[$keyValue[0]] = $keyValue[1];
+                if ($keyValue[0] === session_name()) {
+                    session_id($keyValue[1]);
+                    $sessionIsSetByCookie = true;
+                }
+            }
+        }
+
+        if (session_id() && !$sessionIsSetByCookie) {
+            if (ini_get('session.use_strict_mode')) {
+                throw new \RuntimeException('Enabled session.use_strict_mode is not allowed');
+            }
+            session_id($this->generateSessionId());
         }
     }
 
