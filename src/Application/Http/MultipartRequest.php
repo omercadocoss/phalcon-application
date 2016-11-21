@@ -44,7 +44,6 @@ class MultipartRequest extends Request
         $this->message = $message;
 
         $this->populateRequestTime();
-        $this->populateHeaders();
         $this->populateServerEnvironment();
         $this->populateRequest();
     }
@@ -56,53 +55,10 @@ class MultipartRequest extends Request
         $_SERVER['REQUEST_TIME_FLOAT'] = $start;
     }
 
-    /**
-     * @return string
-     */
-    private function generateSessionId()
-    {
-        $entropy = uniqid(mt_rand(), true) . microtime(true);
-
-        if (function_exists('openssl_random_pseudo_bytes')) {
-            $entropy .= openssl_random_pseudo_bytes(32, $strong);
-        }
-
-        if (function_exists('mcrypt_create_iv')) {
-            $entropy .= mcrypt_create_iv(32, MCRYPT_DEV_URANDOM);
-        }
-
-        return hash('whirlpool', $entropy);
-    }
-
-    private function populateHeaders()
-    {
-        $nonHeaders = ['AUTHORIZATION', 'HTTPS', 'COOKIE', 'REMOTE_ADDR'];
-        $staticHeaders = ['X-HTTP-METHOD-OVERRIDE'];
-
-        foreach ($_SERVER as $name => $value) {
-            if (strpos($name, 'HTTP_') === 0 || in_array($name, $staticHeaders)) {
-                unset($_SERVER[$name]);
-            }
-        }
-
-        foreach ($this->message->getHeaders() as $name => $value) {
-            if (isset($_ENV[$name])) {
-                continue;
-            }
-            $name = strtoupper($name);
-            if (in_array($name, $staticHeaders)) {
-                $_SERVER[$name] = $value;
-            } else {
-                $name = str_replace('-', '_', $name);
-                if (!in_array($name, $nonHeaders)) {
-                    $_SERVER['HTTP_' . $name] = $value;
-                }
-            }
-        }
-    }
-
     private function populateServerEnvironment()
     {
+        $this->populateHeaderValues();
+
         if (isset($_SERVER['CONTENT_TYPE'])) unset($_SERVER['CONTENT_TYPE']);
         if (isset($_SERVER['PHP_AUTH_USER'])) unset($_SERVER['PHP_AUTH_USER']);
         if (isset($_SERVER['PHP_AUTH_PW'])) unset($_SERVER['PHP_AUTH_PW']);
@@ -136,11 +92,38 @@ class MultipartRequest extends Request
         }
     }
 
+    private function populateHeaderValues()
+    {
+        $nonHeaders = ['AUTHORIZATION', 'HTTPS', 'COOKIE', 'REMOTE_ADDR'];
+        $staticHeaders = ['X-HTTP-METHOD-OVERRIDE'];
+
+        foreach ($_SERVER as $name => $value) {
+            if (strpos($name, 'HTTP_') === 0 || in_array($name, $staticHeaders)) {
+                unset($_SERVER[$name]);
+            }
+        }
+
+        foreach ($this->message->getHeaders() as $name => $value) {
+            if (isset($_ENV[$name])) {
+                continue;
+            }
+            $name = strtoupper($name);
+            if (in_array($name, $staticHeaders)) {
+                $_SERVER[$name] = $value;
+            } else {
+                $name = str_replace('-', '_', $name);
+                if (!in_array($name, $nonHeaders)) {
+                    $_SERVER['HTTP_' . $name] = $value;
+                }
+            }
+        }
+    }
+
     private function populateRequest()
     {
         $_GET = $this->message->getQuery();
         $_POST = $this->message->getPost();
-        $this->populateCookies();
+        $this->populateCookieValues();
 
         switch ($this->message->getRequestOrder()) {
             case 'GPC': $_REQUEST = array_replace_recursive($_GET, $_POST, $_COOKIE); break;
@@ -156,7 +139,7 @@ class MultipartRequest extends Request
     /**
      * @throws \RuntimeException
      */
-    private function populateCookies()
+    private function populateCookieValues()
     {
         $_COOKIE = [];
         $sessionIsSetByCookie = false;
@@ -179,6 +162,24 @@ class MultipartRequest extends Request
             }
             session_id($this->generateSessionId());
         }
+    }
+
+    /**
+     * @return string
+     */
+    private function generateSessionId()
+    {
+        $entropy = uniqid(mt_rand(), true) . microtime(true);
+
+        if (function_exists('openssl_random_pseudo_bytes')) {
+            $entropy .= openssl_random_pseudo_bytes(32, $strong);
+        }
+
+        if (function_exists('mcrypt_create_iv')) {
+            $entropy .= mcrypt_create_iv(32, MCRYPT_DEV_URANDOM);
+        }
+
+        return hash('whirlpool', $entropy);
     }
 
     public function getRawBody() : string
