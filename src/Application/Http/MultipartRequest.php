@@ -59,10 +59,13 @@ class MultipartRequest extends Request
         $_SERVER['REQUEST_TIME_FLOAT'] = $start;
     }
 
+    /**
+     * @throws \RuntimeException
+     */
     private function populateCookies()
     {
         $_COOKIE = [];
-        $sessionSetByCookie = false;
+        $sessionIsSetByCookie = false;
 
         if (isset($this->message->getHeaders()['Cookie'])) {
             $cookies = explode(';', $this->message->getHeaders()['Cookie']);
@@ -71,12 +74,15 @@ class MultipartRequest extends Request
                 $_COOKIE[$keyValue[0]] = $keyValue[1];
                 if ($keyValue[0] === session_name()) {
                     session_id($keyValue[1]);
-                    $sessionSetByCookie = true;
+                    $sessionIsSetByCookie = true;
                 }
             }
         }
 
-        if (session_id() && !$sessionSetByCookie) {
+        if (session_id() && !$sessionIsSetByCookie) {
+            if (ini_get('session.use_strict_mode')) {
+                throw new \RuntimeException('Enabled session.use_strict_mode is not allowed');
+            }
             session_id($this->generateSessionId());
         }
     }
