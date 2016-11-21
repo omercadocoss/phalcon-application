@@ -58,20 +58,21 @@ class Response implements ResponseInterface
 
     public function send($result)
     {
-        $this->readNativeHeaders();
+        $this->readHeaders();
+
         if ($result instanceof ResponseProxy) {
             $this->read($result);
         }
 
-        $this->closeOpenedSession();
-        $this->flushHeaders();
-        $this->writeCookies();
+        $this->finishActiveSession();
+        $this->removePreviousHeaders();
+        $this->sendCookies();
 
         $this->response->writeHead($this->httpStatusCode, $this->headers);
         $this->response->end($this->content);
     }
 
-    private function readNativeHeaders()
+    private function readHeaders()
     {
         foreach (headers_list() as $header) {
             if (false !== $pos = strpos($header, ':')) {
@@ -107,7 +108,7 @@ class Response implements ResponseInterface
         }
     }
 
-    private function closeOpenedSession()
+    private function finishActiveSession()
     {
         if (PHP_SESSION_ACTIVE === session_status()) {
             session_write_close();
@@ -115,12 +116,12 @@ class Response implements ResponseInterface
         }
     }
 
-    private function flushHeaders()
+    private function removePreviousHeaders()
     {
         header_remove();
     }
 
-    private function writeCookies()
+    private function sendCookies()
     {
         $cookies = [];
 
