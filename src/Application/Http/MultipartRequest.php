@@ -182,7 +182,7 @@ class MultipartRequest extends Request
             throw new \RuntimeException('Enabled session.use_strict_mode is not allowed in reactive environment');
         }
 
-        $entropy = uniqid(mt_rand(), true) . microtime(true);
+        $entropy = uniqid((string) mt_rand(), true) . microtime(true);
 
         if (function_exists('openssl_random_pseudo_bytes')) {
             $entropy .= openssl_random_pseudo_bytes(32, $strong);
