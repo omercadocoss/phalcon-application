@@ -59,16 +59,18 @@ class Bootstrap
 
     /**
      * @param array $server
-     * @param MultipartMessageInterface|null $msg
-     * @param ResponseInterface|null $response
      * @throws \Throwable
      */
-    public function runApplicationOn(array $server, MultipartMessageInterface $msg = null, ResponseInterface $response = null)
+    public function runApplicationOn(array $server)
     {
-        if ($msg && $response) {
+        if (isset($server['reactive'])) {
+            /** @var MultipartMessageInterface $message */
+            $message = $server['reactive']['message'];
+            /** @var ResponseInterface $response */
+            $response = $server['reactive']['response'];
             try {
-                $di = MvcMessageDi::createWith($msg);
-                $result = Application::createMvcFrom($this->config, $di)->handle($msg->getPath());
+                $di = MvcMessageDi::createWith($message, $server['reactive']['event-loop'] ?? null);
+                $result = Application::createMvcFrom($this->config, $di)->handle($message->getPath());
             } catch (\Throwable $e) {
                 $result = false;
                 $exception = $e;

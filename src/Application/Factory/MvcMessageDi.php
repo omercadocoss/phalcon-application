@@ -43,12 +43,19 @@ class MvcMessageDi extends FactoryDefault
 
     /**
      * @param MultipartMessageInterface $message
+     * @param object|null $eventLoop
      * @return self
      */
-    public static function createWith(MultipartMessageInterface $message) : self
+    public static function createWith(MultipartMessageInterface $message, $eventLoop = null) : self
     {
         $di = new self;
+
+        if ($eventLoop) {
+            $di->setShared('event-loop', $eventLoop);
+        }
+
         $di->setShared('request', new MultipartRequest($message));
+
 
         return $di;
     }
