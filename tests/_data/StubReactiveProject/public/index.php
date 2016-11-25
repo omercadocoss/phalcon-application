@@ -17,9 +17,9 @@ $stream = function (\React\Http\Request $request, \React\Http\Response $response
         function ($data) use ($request, $response, $loop, $config) {
             \Phapp\Application\Bootstrap::init($config)->runApplicationOn([
                 'reactive' => [
-                    'loop'     => $loop,
-                    'message'  => new \Phapp\Application\Adapter\React\MultipartMessage($request, $data),
-                    'response' => new \Phapp\Application\Adapter\React\Response($response),
+                    'event-loop' => $loop,
+                    'message'    => new \Phapp\Application\Adapter\React\MultipartMessage($request, $data),
+                    'response'   => new \Phapp\Application\Adapter\React\Response($response),
                 ],
             ]);
         }
