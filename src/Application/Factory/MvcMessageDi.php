@@ -56,7 +56,6 @@ class MvcMessageDi extends FactoryDefault
 
         $di->setShared('request', new MultipartRequest($message));
 
-
         return $di;
     }
 }
