@@ -42,6 +42,7 @@
   "autoload-dev": {
     "psr-4": {
       "StubProject\\": "tests/_data/StubProject/src/",
+      "StubReactiveProject\\": "tests/_data/StubReactiveProject/src/",
       "StubViewProject\\": "tests/_data/StubViewProject/src/"
     }
   }
