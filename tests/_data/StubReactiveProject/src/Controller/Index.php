@@ -13,20 +13,12 @@ class Index extends Controller
 {
     public function indexAction()
     {
-        /*
-        if (!$this->di->getShared('event-loop') instanceof LoopInterface) {
-            throw new \UnexpectedValueException('EventLoop service must an instance of LoopInterface');
-        }
-        if (!$this->di->getShared('cookies') instanceof CookieCollection) {
-            throw new \UnexpectedValueException('Cookies service must be an instance of CookieCollection');
-        }
-        if (!$this->di->getShared('request') instanceof MultipartRequest) {
-            throw new \UnexpectedValueException('Request service must be an instance of MultipartRequest');
-        }
-        if (!$this->di->getShared('response') instanceof ResponseProxy) {
-            throw new \UnexpectedValueException('Response service must be an instance of ResponseProxy');
-        }
-        */
+        $services = [
+            'event-loop' => $this->di->getShared('event-loop') instanceof LoopInterface,
+            'cookies'    => $this->di->getShared('cookies') instanceof CookieCollection,
+            'request'    => $this->di->getShared('request') instanceof MultipartRequest,
+            'response'   => $this->di->getShared('response') instanceof ResponseProxy,
+        ];
 
         $request = [
             'getScheme'                      => $this->request->getScheme(),
@@ -89,7 +81,7 @@ class Index extends Controller
         $response = new Response;
         $response->setContentType('application/json', 'UTF-8');
         $response->setStatusCode(200, 'OK');
-        $response->setJsonContent($request);
+        $response->setJsonContent(['services' => $services, 'request' => $request]);
 
         return $response;
     }
