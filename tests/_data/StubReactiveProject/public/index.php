@@ -15,7 +15,6 @@ $stream = function (\React\Http\Request $request, \React\Http\Response $response
     $parser = \React\Http\StreamingBodyParser\Factory::create($request);
     \React\Http\StreamingBodyParser\BufferedSink::createPromise($parser)->then(
         function ($data) use ($request, $response, $loop, $config) {
-
             \Phapp\Application\Bootstrap::init($config)->runApplicationOn([
                 'reactive' => [
                     'loop'     => $loop,
