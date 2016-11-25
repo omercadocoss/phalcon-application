@@ -51,6 +51,15 @@ class MultipartMessage implements MultipartMessageInterface
         $this->request = $request;
         $this->data = $data;
         $this->requestOrder = $requestOrder;
+
+        if ($this->getMethod() == 'PUT'
+            && isset($this->getHeaders()['Content-Type'])
+            && $this->getHeaders()['Content-Type'] == 'application/x-www-form-urlencoded'
+            && $this->getPost()
+        ) {
+            $this->data['body'] = http_build_query($this->getPost());
+            $this->data['post'] = [];
+        }
     }
 
     public function getMethod() : string
