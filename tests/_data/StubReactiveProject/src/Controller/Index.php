@@ -17,71 +17,80 @@ class Index extends Controller
             'event-loop' => $this->di->getShared('event-loop') instanceof LoopInterface,
             'cookies'    => $this->di->getShared('cookies') instanceof CookieCollection,
             'request'    => $this->di->getShared('request') instanceof MultipartRequest,
-            'response'   => $this->di->getShared('response') instanceof ResponseProxy,
         ];
+
+        /**
+         * session, cookie, native headers test!!
+         */
 
         $request = [
-            'getScheme'                      => $this->request->getScheme(),
-            'getMethod'                      => $this->request->getMethod(),
-            'getPort'                        => $this->request->getPort(),
-            'isSoap'                         => $this->request->isSoap(),
-            'isAjax'                         => $this->request->isAjax(),
-            'isGet'                          => $this->request->isGet(),
-            'isPost'                         => $this->request->isPost(),
-            'isPut'                          => $this->request->isPut(),
-            'isDelete'                       => $this->request->isDelete(),
-            'isPatch'                        => $this->request->isPatch(),
-            'isHead'                         => $this->request->isHead(),
-            'isOptions'                      => $this->request->isOptions(),
-            'isTrace'                        => $this->request->isTrace(),
+            'getScheme'            => $this->request->getScheme(), // @todo https!??
+            'getMethod'            => $this->request->getMethod(),
+            'getPort'              => $this->request->getPort(), // @todo how to test?
+            'isSoap'               => $this->request->isSoap(), // @todo
+            'isAjax'               => $this->request->isAjax(), // @todo
+            'isGet'                => $this->request->isGet(),
+            'isPost'               => $this->request->isPost(),
+            'isPut'                => $this->request->isPut(),
+            'isDelete'             => $this->request->isDelete(), // @todo
+            'isPatch'              => $this->request->isPatch(), // @todo
+            'isHead'               => $this->request->isHead(), // @todo
+            'isOptions'            => $this->request->isOptions(), // @todo
+            'isTrace'              => $this->request->isTrace(), // @todo
 
-            'hasPost'                        => $this->request->hasPost('foo'),
-            'hasServer'                      => $this->request->hasServer('foo'),
-            'hasPut'                         => $this->request->hasPut('foo'),
-            'hasQuery'                       => $this->request->hasQuery('foo'),
-            'hasFiles'                       => $this->request->hasFiles(),
+            'hasPostArgFoo'        => $this->request->hasPost('foo'),
+            'hasServerArgFoo'      => $this->request->hasServer('foo'), // @todo
+            'hasPutArgFoo'         => $this->request->hasPut('foo'),
+            'hasQueryArgFoo'       => $this->request->hasQuery('foo'),
+            'hasFiles'             => $this->request->hasFiles(), // @todo
 
-            'getQuery'                       => $this->request->getQuery(),
-            'getPost'                        => $this->request->getPost(),
-            'getPut'                         => $this->request->getPut(),
-            'getRawBody'                     => $this->request->getRawBody(),
-            'getHeaders'                     => $this->request->getHeaders(),
+            'getQuery'             => $this->request->getQuery(),
+            'getPost'              => $this->request->getPost(),
+            'getPut'               => $this->request->getPut(),
+            'getRawBody'           => $this->request->getRawBody(),
+            'getHeaders'           => $this->request->getHeaders(), // @todo
 
-            'getJsonRawBody'                 => $this->request->getJsonRawBody(),
-            'getUploadedFiles'               => $this->request->getUploadedFiles(),
+            'getJsonRawBody'       => $this->request->getJsonRawBody(), // @todo
+            'getUploadedFiles'     => $this->request->getUploadedFiles(), // @todo
 
-            'header'                         => $this->request->getHeader('foo'),
-            'server'                         => $this->request->getServer('foo'),
-            'query'                          => $this->request->getQuery('foo'),
-            'post'                           => $this->request->getPost('foo'),
-            'put'                            => $this->request->getPut('foo'),
+            'headerArgFoo'         => $this->request->getHeader('foo'),
+            'serverArgFoo'         => $this->request->getServer('foo'), // @todo
+            'queryArgFoo'          => $this->request->getQuery('foo'),
+            'postArgFoo'           => $this->request->getPost('foo'),
+            'putArgFoo'            => $this->request->getPut('foo'),
 
-            'isValidHttpMethod'              => $this->request->isValidHttpMethod('foo'),
-            'getHttpMethodParameterOverride' => $this->request->getHttpMethodParameterOverride(),
-            'isStrictHostCheck'              => $this->request->isStrictHostCheck(),
+            // @todo do unit tests for that
+            //'isValidHttpMethod'              => $this->request->isValidHttpMethod('foo'),
+            //'getHttpMethodParameterOverride' => $this->request->getHttpMethodParameterOverride(),
+            //'isStrictHostCheck'              => $this->request->isStrictHostCheck(),
 
-            'getAcceptableContent'           => $this->request->getAcceptableContent(),
-            'getBasicAuth'                   => $this->request->getBasicAuth(),
-            'getBestAccept'                  => $this->request->getBestAccept(),
-            'getBestCharset'                 => $this->request->getBestCharset(),
-            'getClientAddress'               => $this->request->getClientAddress(),
-            'getClientCharsets'              => $this->request->getClientCharsets(),
-            'getBestLanguage'                => $this->request->getBestLanguage(),
-            'getContentType'                 => $this->request->getContentType(),
-            'getDigestAuth'                  => $this->request->getDigestAuth(),
-            'getHttpHost'                    => $this->request->getHttpHost(),
-            'getHTTPReferer'                 => $this->request->getHTTPReferer(),
-            'getServerAddress'               => $this->request->getServerAddress(),
-            'getServerName'                  => $this->request->getServerName(),
-            'getLanguages'                   => $this->request->getLanguages(),
-            'getURI'                         => $this->request->getURI(),
-            'getUserAgent'                   => $this->request->getUserAgent(),
+            'getAcceptableContent' => $this->request->getAcceptableContent(), // @todo
+            'getBasicAuth'         => $this->request->getBasicAuth(), // @todo
+            'getBestAccept'        => $this->request->getBestAccept(), // @todo
+            'getBestCharset'       => $this->request->getBestCharset(), // @todo
+            'getClientAddress'     => $this->request->getClientAddress(), // @todo
+            'getClientCharsets'    => $this->request->getClientCharsets(), // @todo
+            'getBestLanguage'      => $this->request->getBestLanguage(), // @todo
+            'getContentType'       => $this->request->getContentType(), // @todo
+            'getDigestAuth'        => $this->request->getDigestAuth(), // @todo
+            'getHttpHost'          => $this->request->getHttpHost(), // @todo
+            // @todo do dedicated tests for that
+            //'getHTTPReferer'       => $this->request->getHTTPReferer(),
+            'getServerAddress'     => $this->request->getServerAddress(), // @todo check if its possible
+            'getServerName'        => $this->request->getServerName(),
+            'getLanguages'         => $this->request->getLanguages(), // @todo
+            'getURI'               => $this->request->getURI(),
+            'getUserAgent'         => $this->request->getUserAgent(),
         ];
+
+        if (isset($request['getHeaders']['Referer'])) {
+            unset($request['getHeaders']['Referer']);
+        }
 
         $response = new Response;
         $response->setContentType('application/json', 'UTF-8');
         $response->setStatusCode(200, 'OK');
-        $response->setJsonContent(['services' => $services, 'request' => $request]);
+        $response->setJsonContent(['services' => $services, 'requestData' => $request]);
 
         return $response;
     }
