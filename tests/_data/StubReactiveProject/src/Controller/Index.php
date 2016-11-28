@@ -27,19 +27,19 @@ class Index extends Controller
             'getScheme'            => $this->request->getScheme(), // @todo https!??
             'getMethod'            => $this->request->getMethod(),
             'getPort'              => $this->request->getPort(), // @todo how to test?
-            'isSoap'               => $this->request->isSoap(), // @todo
-            'isAjax'               => $this->request->isAjax(), // @todo
+            'isSoap'               => $this->request->isSoap(),
+            'isAjax'               => $this->request->isAjax(),
             'isGet'                => $this->request->isGet(),
             'isPost'               => $this->request->isPost(),
             'isPut'                => $this->request->isPut(),
-            'isDelete'             => $this->request->isDelete(), // @todo
-            'isPatch'              => $this->request->isPatch(), // @todo
-            'isHead'               => $this->request->isHead(), // @todo
-            'isOptions'            => $this->request->isOptions(), // @todo
-            'isTrace'              => $this->request->isTrace(), // @todo
+            'isDelete'             => $this->request->isDelete(), // @todo test with data
+            'isPatch'              => $this->request->isPatch(), // @todo test with data
+            'isHead'               => $this->request->isHead(),
+            'isOptions'            => $this->request->isOptions(), // @todo test with data
+            'isTrace'              => $this->request->isTrace(), // @todo test with data
 
             'hasPostArgFoo'        => $this->request->hasPost('foo'),
-            'hasServerArgFoo'      => $this->request->hasServer('foo'), // @todo
+            'hasServerArgVar'      => $this->request->hasServer('var'),
             'hasPutArgFoo'         => $this->request->hasPut('foo'),
             'hasQueryArgFoo'       => $this->request->hasQuery('foo'),
             'hasFiles'             => $this->request->hasFiles(), // @todo
@@ -48,13 +48,13 @@ class Index extends Controller
             'getPost'              => $this->request->getPost(),
             'getPut'               => $this->request->getPut(),
             'getRawBody'           => $this->request->getRawBody(),
-            'getHeaders'           => $this->request->getHeaders(), // @todo
+            'getHeaders'           => $this->request->getHeaders(),
 
             'getJsonRawBody'       => $this->request->getJsonRawBody(), // @todo
             'getUploadedFiles'     => $this->request->getUploadedFiles(), // @todo
 
             'headerArgFoo'         => $this->request->getHeader('foo'),
-            'serverArgFoo'         => $this->request->getServer('foo'), // @todo
+            'serverArgVar'         => $this->request->getServer('var'),
             'queryArgFoo'          => $this->request->getQuery('foo'),
             'postArgFoo'           => $this->request->getPost('foo'),
             'putArgFoo'            => $this->request->getPut('foo'),

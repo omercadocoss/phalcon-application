@@ -178,6 +178,220 @@ class ReactiveCest
          */
     }
 
+    /**
+     * @param FunctionalTester $tester
+     */
+    public function testDeleteRequest(FunctionalTester $tester)
+    {
+        $tester->sendDELETE('/', ['foo' => '4', 'bar' => 'bla']);
+
+        $requestData = json_decode($tester->grabResponse(), true)['requestData'];
+
+        $this->setExpectedRequestData([
+            'isDelete'  => true,
+            'getMethod' => 'DELETE',
+        ]);
+
+        $tester->assertEquals($this->expectedRequestData, $requestData);
+    }
+
+    /**
+     * @param FunctionalTester $tester
+     */
+    public function testPatchRequest(FunctionalTester $tester)
+    {
+        $tester->sendPATCH('/');
+        $requestData = json_decode($tester->grabResponse(), true)['requestData'];
+
+        $this->setExpectedRequestData([
+            'isPatch'   => true,
+            'getMethod' => 'PATCH',
+        ]);
+
+        $tester->assertEquals($this->expectedRequestData, $requestData);
+    }
+
+    /**
+     * @param FunctionalTester $tester
+     */
+    public function testHeadRequest(FunctionalTester $tester)
+    {
+        return;
+        $tester->sendHEAD('/');
+
+        $requestData = json_decode($tester->grabResponse(), true)['requestData'];
+
+        $this->setExpectedRequestData([
+            'isHead'    => true,
+            'getMethod' => 'HEAD',
+        ]);
+
+        $tester->assertEquals($this->expectedRequestData, $requestData);
+    }
+
+    /**
+     * @param FunctionalTester $tester
+     */
+    public function testOptionsRequest(FunctionalTester $tester)
+    {
+        $tester->sendOPTIONS('/');
+
+        $requestData = json_decode($tester->grabResponse(), true)['requestData'];
+
+        $this->setExpectedRequestData([
+            'isOptions' => true,
+            'getMethod' => 'OPTIONS',
+        ]);
+
+        $tester->assertEquals($this->expectedRequestData, $requestData);
+    }
+
+    /**
+     * @param FunctionalTester $tester
+     */
+    public function testTraceRequest(FunctionalTester $tester)
+    {
+        return;
+    }
+
+    /**
+     * @param FunctionalTester $tester
+     */
+    public function testAjaxRequest(FunctionalTester $tester)
+    {
+        return;
+        $tester->haveHttpHeader('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest');
+        $tester->sendGET('/');
+
+        $requestData = json_decode($tester->grabResponse(), true)['requestData'];
+
+        $this->setExpectedRequestData([
+            'isGet'      => true,
+            'isAjax'     => true,
+            'getMethod'  => 'GET',
+            'getHeaders' => ['Http-X-Requested-With' => 'XMLHttpRequest'],
+        ]);
+
+        $tester->assertEquals($this->expectedRequestData, $requestData);
+    }
+
+    /**
+     * @param FunctionalTester $tester
+     */
+    public function testSoapRequestWithHeader(FunctionalTester $tester)
+    {
+        return;
+        $tester->haveHttpHeader('HTTP_SOAPACTION', '1');
+        $tester->sendGET('/');
+
+        $requestData = json_decode($tester->grabResponse(), true)['requestData'];
+
+        $this->setExpectedRequestData([
+            'isGet'      => true,
+            'isSoap'     => true,
+            'getMethod'  => 'GET',
+            'getHeaders' => ['Http-Soapaction' => '1'],
+        ]);
+
+        $tester->assertEquals($this->expectedRequestData, $requestData);
+    }
+
+    /**
+     * @param FunctionalTester $tester
+     */
+    public function testHeaderDataRetrieval(FunctionalTester $tester)
+    {
+        $tester->haveHttpHeader('foo', '1');
+        $tester->haveHttpHeader('bar', 'baz');
+        $tester->haveHttpHeader('bar-boom', 'baz1');
+        $tester->haveHttpHeader('baz_boom', 'baz2');
+        $tester->haveHttpHeader('FOO_BOOM', 'baz3');
+        $tester->haveHttpHeader('BOO-BOOM', 'baz4');
+        $tester->haveHttpHeader('Http-FOO', 'foo');
+        $tester->sendGET('/');
+
+        $requestData = json_decode($tester->grabResponse(), true)['requestData'];
+
+        $this->setExpectedRequestData([
+            'isGet'        => true,
+            'getMethod'    => 'GET',
+            'headerArgFoo' => '1',
+            'getHeaders'   => [
+                'Foo'      => '1',
+                'Bar'      => 'baz',
+                'Bar-Boom' => 'baz1',
+                'Baz-Boom' => 'baz2',
+                'Foo-Boom' => 'baz3',
+                'Boo-Boom' => 'baz4',
+                'Http-Foo' => 'foo',
+            ],
+        ]);
+
+        $tester->assertEquals($this->expectedRequestData, $requestData);
+    }
+
+    /**
+     * @param FunctionalTester $tester
+     */
+    public function testServerDataRetrieval(FunctionalTester $tester)
+    {
+        return;
+        $tester->haveHttpHeader('var', '1');
+        $tester->sendGET('/');
+
+        $requestData = json_decode($tester->grabResponse(), true)['requestData'];
+
+        $this->setExpectedRequestData([
+            'isGet'           => true,
+            'getMethod'       => 'GET',
+            'hasServerArgVar' => true,
+            'serverArgVar'    => '1',
+            'getHeaders'      => [
+                'Http-Var' => '1',
+            ],
+        ]);
+
+        $tester->assertEquals($this->expectedRequestData, $requestData);
+
+        $tester->haveHttpHeader('var', '2');
+        $tester->sendGET('/');
+
+        $requestData = json_decode($tester->grabResponse(), true)['requestData'];
+
+        $this->setExpectedRequestData([
+            'isGet'           => true,
+            'getMethod'       => 'GET',
+            'hasServerArgVar' => true,
+            'serverArgVar'    => '2',
+            'getHeaders'      => [
+                'Http-Var' => '2',
+            ],
+        ]);
+
+        $tester->assertEquals($this->expectedRequestData, $requestData);
+    }
+
+    /**
+     * @param FunctionalTester $tester
+     */
+    public function testSoapRequestWithContentType(FunctionalTester $tester)
+    {
+        return;
+        // @todo if this content-type exist react is waiting infinitly for that!!
+        $tester->haveHttpHeader('CONTENT_TYPE', 'application/soap+xml');
+        $tester->sendGET('/');
+
+        $requestData = json_decode($tester->grabResponse(), true)['requestData'];
+
+        $this->setExpectedRequestData([
+            'isGet'     => true,
+            'isSoap'    => true,
+            'getMethod' => 'GET',
+        ]);
+
+        $tester->assertEquals($this->expectedRequestData, $requestData);
+    }
+
     private function setExpectedRequestData(array $overwrites = [])
     {
         $this->expectedRequestData = [
