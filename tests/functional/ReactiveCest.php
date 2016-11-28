@@ -220,7 +220,6 @@ class ReactiveCest
         $tester->sendHEAD('/');
 
         $requestData = json_decode($tester->grabResponse(), true)['requestData'];
-
         $this->setExpectedRequestData([
             'isHead'    => true,
             'getMethod' => 'HEAD',
@@ -259,7 +258,6 @@ class ReactiveCest
      */
     public function testAjaxRequest(FunctionalTester $tester)
     {
-        return;
         $tester->haveHttpHeader('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest');
         $tester->sendGET('/');
 
@@ -269,7 +267,7 @@ class ReactiveCest
             'isGet'      => true,
             'isAjax'     => true,
             'getMethod'  => 'GET',
-            'getHeaders' => ['Http-X-Requested-With' => 'XMLHttpRequest'],
+            'getHeaders' => ['X-Requested-With' => 'XMLHttpRequest'],
         ]);
 
         $tester->assertEquals($this->expectedRequestData, $requestData);
@@ -280,7 +278,6 @@ class ReactiveCest
      */
     public function testSoapRequestWithHeader(FunctionalTester $tester)
     {
-        return;
         $tester->haveHttpHeader('HTTP_SOAPACTION', '1');
         $tester->sendGET('/');
 
@@ -290,7 +287,7 @@ class ReactiveCest
             'isGet'      => true,
             'isSoap'     => true,
             'getMethod'  => 'GET',
-            'getHeaders' => ['Http-Soapaction' => '1'],
+            'getHeaders' => ['Soapaction' => '1'],
         ]);
 
         $tester->assertEquals($this->expectedRequestData, $requestData);
@@ -336,15 +333,14 @@ class ReactiveCest
         $this->setExpectedRequestData([
             'isGet'        => true,
             'getMethod'    => 'GET',
-            'headerArgFoo' => '1',
+            'headerArgFoo' => 'foo',
             'getHeaders'   => [
-                'Foo'      => '1',
+                'Foo'      => 'foo',
                 'Bar'      => 'baz',
                 'Bar-Boom' => 'baz1',
                 'Baz-Boom' => 'baz2',
                 'Foo-Boom' => 'baz3',
                 'Boo-Boom' => 'baz4',
-                'Http-Foo' => 'foo',
             ],
         ]);
 
@@ -390,6 +386,25 @@ class ReactiveCest
         ]);
 
         $tester->assertEquals($this->expectedRequestData, $requestData);
+    }
+
+    /**
+     * @param FunctionalTester $tester
+     */
+    public function testReferer(FunctionalTester $tester)
+    {
+        $tester->sendGET('/index/referer?foo=123');
+
+        $referer = json_decode($tester->grabResponse(), true)['httpReferer'];
+        $tester->assertEquals('', $referer);
+
+        $tester->sendGET('/index/referer/');
+        $referer = json_decode($tester->grabResponse(), true)['httpReferer'];
+        $tester->assertEquals('http://react/index/referer?foo=123', $referer);
+
+        $tester->sendGET('/index/referer/?foo=123');
+        $referer = json_decode($tester->grabResponse(), true)['httpReferer'];
+        $tester->assertEquals('http://react/index/referer/', $referer);
     }
 
     private function setExpectedRequestData(array $overwrites = [])

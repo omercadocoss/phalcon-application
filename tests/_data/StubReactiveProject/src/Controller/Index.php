@@ -58,11 +58,6 @@ class Index extends Controller
             'postArgFoo'           => $this->request->getPost('foo'),
             'putArgFoo'            => $this->request->getPut('foo'),
 
-            // @todo do unit tests for that
-            //'isValidHttpMethod'              => $this->request->isValidHttpMethod('foo'),
-            //'getHttpMethodParameterOverride' => $this->request->getHttpMethodParameterOverride(),
-            //'isStrictHostCheck'              => $this->request->isStrictHostCheck(),
-
             'getAcceptableContent' => $this->request->getAcceptableContent(), // @todo
             'getBasicAuth'         => $this->request->getBasicAuth(), // @todo
             'getBestAccept'        => $this->request->getBestAccept(), // @todo
@@ -73,8 +68,6 @@ class Index extends Controller
             'getContentType'       => $this->request->getContentType(), // @todo
             'getDigestAuth'        => $this->request->getDigestAuth(), // @todo
             'getHttpHost'          => $this->request->getHttpHost(), // @todo
-            // @todo do dedicated tests for that
-            //'getHTTPReferer'       => $this->request->getHTTPReferer(),
             'getServerAddress'     => $this->request->getServerAddress(), // @todo check if its possible
             'getServerName'        => $this->request->getServerName(),
             'getLanguages'         => $this->request->getLanguages(), // @todo
@@ -90,6 +83,16 @@ class Index extends Controller
         $response->setContentType('application/json', 'UTF-8');
         $response->setStatusCode(200, 'OK');
         $response->setJsonContent(['services' => $services, 'requestData' => $request]);
+
+        return $response;
+    }
+
+    public function refererAction()
+    {
+        $response = new Response;
+        $response->setContentType('application/json', 'UTF-8');
+        $response->setStatusCode(200, 'OK');
+        $response->setJsonContent(['httpReferer' => $this->request->getHTTPReferer()]);
 
         return $response;
     }

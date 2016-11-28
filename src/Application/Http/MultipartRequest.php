@@ -113,7 +113,11 @@ class MultipartRequest extends Request
             } else {
                 $name = str_replace('-', '_', $name);
                 if (!in_array($name, $nonHeaders)) {
-                    $_SERVER['HTTP_' . $name] = $value;
+                    if (strpos($name, 'HTTP_') === 0) {
+                        $_SERVER[$name] = $value;
+                    } else {
+                        $_SERVER['HTTP_' . $name] = $value;
+                    }
                 }
             }
         }
