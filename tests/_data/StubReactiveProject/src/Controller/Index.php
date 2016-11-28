@@ -6,7 +6,6 @@ use Phalcon\Http\Response;
 use Phalcon\Mvc\Controller;
 use Phapp\Application\Http\CookieCollection;
 use Phapp\Application\Http\MultipartRequest;
-use Phapp\Application\Http\ResponseProxy;
 use React\EventLoop\LoopInterface;
 
 class Index extends Controller
@@ -50,7 +49,7 @@ class Index extends Controller
             'getRawBody'           => $this->request->getRawBody(),
             'getHeaders'           => $this->request->getHeaders(),
 
-            'getJsonRawBody'       => $this->request->getJsonRawBody(), // @todo
+            'getJsonRawBody'       => $this->request->getJsonRawBody(true), // @todo
             'getUploadedFiles'     => $this->request->getUploadedFiles(), // @todo
 
             'headerArgFoo'         => $this->request->getHeader('foo'),

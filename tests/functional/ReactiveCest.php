@@ -299,6 +299,27 @@ class ReactiveCest
     /**
      * @param FunctionalTester $tester
      */
+    public function testSoapRequestWithContentType(FunctionalTester $tester)
+    {
+        return;
+        // @todo if this content-type exist react is waiting infinitly for that!!
+        $tester->haveHttpHeader('CONTENT_TYPE', 'application/soap+xml');
+        $tester->sendGET('/');
+
+        $requestData = json_decode($tester->grabResponse(), true)['requestData'];
+
+        $this->setExpectedRequestData([
+            'isGet'     => true,
+            'isSoap'    => true,
+            'getMethod' => 'GET',
+        ]);
+
+        $tester->assertEquals($this->expectedRequestData, $requestData);
+    }
+
+    /**
+     * @param FunctionalTester $tester
+     */
     public function testHeaderDataRetrieval(FunctionalTester $tester)
     {
         $tester->haveHttpHeader('foo', '1');
@@ -371,27 +392,6 @@ class ReactiveCest
         $tester->assertEquals($this->expectedRequestData, $requestData);
     }
 
-    /**
-     * @param FunctionalTester $tester
-     */
-    public function testSoapRequestWithContentType(FunctionalTester $tester)
-    {
-        return;
-        // @todo if this content-type exist react is waiting infinitly for that!!
-        $tester->haveHttpHeader('CONTENT_TYPE', 'application/soap+xml');
-        $tester->sendGET('/');
-
-        $requestData = json_decode($tester->grabResponse(), true)['requestData'];
-
-        $this->setExpectedRequestData([
-            'isGet'     => true,
-            'isSoap'    => true,
-            'getMethod' => 'GET',
-        ]);
-
-        $tester->assertEquals($this->expectedRequestData, $requestData);
-    }
-
     private function setExpectedRequestData(array $overwrites = [])
     {
         $this->expectedRequestData = [
@@ -409,7 +409,7 @@ class ReactiveCest
             'isOptions'            => false,
             'isTrace'              => false,
             'hasPostArgFoo'        => false,
-            'hasServerArgFoo'      => false,
+            'hasServerArgVar'      => false,
             'hasPutArgFoo'         => false,
             'hasQueryArgFoo'       => false,
             'hasFiles'             => 0,
@@ -421,7 +421,7 @@ class ReactiveCest
             'getJsonRawBody'       => null,
             'getUploadedFiles'     => [],
             'headerArgFoo'         => '',
-            'serverArgFoo'         => null,
+            'serverArgVar'         => null,
             'queryArgFoo'          => null,
             'postArgFoo'           => null,
             'putArgFoo'            => null,
