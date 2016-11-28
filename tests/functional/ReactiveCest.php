@@ -256,6 +256,25 @@ class ReactiveCest
     /**
      * @param FunctionalTester $tester
      */
+    public function testOverrideMethod(FunctionalTester $tester)
+    {
+        return;
+        $tester->haveHttpHeader('X-Http-Method-Override', 'GET');
+        $tester->sendPost('/', ['foo' => 'bar']);
+
+        $requestData = json_decode($tester->grabResponse(), true)['requestData'];
+
+        $this->setExpectedRequestData([
+            'isGet'     => true,
+            'getMethod' => 'GET',
+        ]);
+
+        $tester->assertEquals($this->expectedRequestData, $requestData);
+    }
+
+    /**
+     * @param FunctionalTester $tester
+     */
     public function testAjaxRequest(FunctionalTester $tester)
     {
         $tester->haveHttpHeader('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest');

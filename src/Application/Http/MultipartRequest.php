@@ -95,10 +95,9 @@ class MultipartRequest extends Request
     private function populateHeaderValues()
     {
         $nonHeaders = ['AUTHORIZATION', 'HTTPS', 'COOKIE', 'REMOTE_ADDR'];
-        $staticHeaders = ['X-HTTP-METHOD-OVERRIDE'];
 
         foreach ($_SERVER as $name => $value) {
-            if (strpos($name, 'HTTP_') === 0 || in_array($name, $staticHeaders)) {
+            if (strpos($name, 'HTTP_') === 0) {
                 unset($_SERVER[$name]);
             }
         }
@@ -107,17 +106,12 @@ class MultipartRequest extends Request
             if (isset($_ENV[$name])) {
                 continue;
             }
-            $name = strtoupper($name);
-            if (in_array($name, $staticHeaders)) {
-                $_SERVER[$name] = $value;
-            } else {
-                $name = str_replace('-', '_', $name);
-                if (!in_array($name, $nonHeaders)) {
-                    if (strpos($name, 'HTTP_') === 0) {
-                        $_SERVER[$name] = $value;
-                    } else {
-                        $_SERVER['HTTP_' . $name] = $value;
-                    }
+            $name = str_replace('-', '_', strtoupper($name));
+            if (!in_array($name, $nonHeaders)) {
+                if (strpos($name, 'HTTP_') === 0) {
+                    $_SERVER[$name] = $value;
+                } else {
+                    $_SERVER['HTTP_' . $name] = $value;
                 }
             }
         }

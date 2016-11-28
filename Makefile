@@ -15,8 +15,11 @@ clean:
 	-@docker rmi -f $(NAME)
 	-@rm -rf vendor
 
-test:
+react-up:
 	-@docker rm -fv phapp-react
 	@docker run -d -p 8080:80 -v $(shell pwd):/phapp --name phapp-react $(NAME) ./tests/_data/StubReactiveProject/public/index.php
+	@docker logs -f phapp-react
+
+test: react-up
 	@docker run --rm -it -v $(shell pwd):/phapp --link phapp-react:react $(NAME) ./vendor/bin/codecept run
 
